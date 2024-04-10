@@ -1,4 +1,4 @@
-# Group Alert Bot
+# Feishu Alert Bot
 
 ## Setup
 
@@ -15,5 +15,5 @@ mv .env.example .env
 ```bash
 # crotab: run at 13:00 every day
 # crontab -e
-0 13 * * * /usr/bin/python3 /path/to/group_alert_bot/main.py
+0 13 * * * /usr/bin/python3 /path/to/feishu-alert-bots/daily_arxiv.py
 ```
