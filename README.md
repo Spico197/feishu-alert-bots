@@ -1,4 +1,4 @@
-# Feishu Alert Bot
+# Feishu Alert Bots
 
 ## Setup
 
@@ -6,7 +6,7 @@
 
 ```bash
 pip install -r requirements.txt
-mv .env.example .env
+cp .env.example .env
 # change settings in .env
 ```
 
@@ -17,3 +17,8 @@ mv .env.example .env
 # crontab -e
 0 13 * * * /usr/bin/python3 /path/to/feishu-alert-bots/daily_arxiv.py
 ```
+
+## TODO
+
+- [ ] [AK](https://huggingface.co/papers) paper recommendation alert
+- [ ] training a classifier (from [AK](https://huggingface.co/papers) & [ML-Papers-of-the-Week](https://github.com/dair-ai/ML-Papers-of-the-Week)) for recommendations
