@@ -18,13 +18,13 @@ from alert import send_feishu_messages
 SETTINGS = {
     "timezone": 8,
     "keys": [
-        "information extraction", "document-level event",
+        "information extraction", "Information Extraction", "document-level event", "Document-level Event",
         # "language model", "LLM", "task planning", "Large Vision-Language Model",
-        "alignment", "preference optimization",
-        "tool learning", "tooling",
-        "knowledge graph", "knowledge base",
-        "in-context learning",
-        "pre-train", "pretrain",
+        "alignment", "preference optimization", "Alignment", "Preference Optimization",
+        "tool learning", "Tool Learning", "tooling", "Tooling",
+        "knowledge graph", "Knowledge Graph", "knowledge base", "Knowledge Base",
+        "in-context learning", "In-Context Learning",
+        "pre-train", "pretrain", "Pre-train", "Pretrain",
         # "reasoning",
     ],
     "authors": [
@@ -144,7 +144,7 @@ def get_highlights(paper: dict):
             highlights.append(author)
     key_cands = sorted(SETTINGS["keys"], key=lambda x: len(x), reverse=True)
     for key in key_cands:
-        if key in paper["title"]:
+        if key in paper["title"] or key in paper["abstract"]:
             highlights.append(key)
     return highlights
 
