@@ -20,12 +20,16 @@ SETTINGS = {
     "keys": [
         "information extraction", "Information Extraction", "document-level event", "Document-level Event",
         # "language model", "LLM", "task planning", "Large Vision-Language Model",
-        "alignment", "preference optimization", "Alignment", "Preference Optimization",
+        "alignment", "preference optimization", "Alignment", "Preference Optimization", "RLHF", "reflection", "Reflection",
+        "Task Planning", "task planning",
         "tool learning", "Tool Learning", "tooling", "Tooling",
-        "knowledge graph", "Knowledge Graph", "knowledge base", "Knowledge Base",
-        "in-context learning", "In-Context Learning",
-        "pre-train", "pretrain", "Pre-train", "Pretrain",
+        "GUI Agent", "GUI", "GUI agent",
+        # "knowledge graph", "Knowledge Graph", "knowledge base", "Knowledge Base",
+        # "in-context learning", "In-Context Learning",
+        # "pre-train", "pretrain", "Pre-train", "Pretrain",
+        "Mixture-of-Experts", "MoE",
         # "reasoning",
+        "instruction following", "Instruction Following",
     ],
     "authors": [
         "Heng Ji", "Dan Roth", "Manling Li", "Sha Li", "Xinya Du", "Thien Huu Nguyen",
@@ -37,7 +41,7 @@ SETTINGS = {
         "Tri Dao", "Song Han", "Hao Zhang",
     ],
     "comments": [
-        "ACL", "EMNLP", "NAACL", "ICLR", "NeurIPS", "ICML", "COLING", "JMLR"
+        "ACL", "EMNLP", "NAACL", "ICLR", "NeurIPS", "ICML",
     ],
     "categories": ["cs.CL", "cs.AI"]
 }
@@ -160,10 +164,14 @@ def is_an_interesting_paper(paper: dict):
 def convert_to_feishu_messages(papers: list):
     messages = []
     for paper in papers:
+        title = paper["title"]
+        for highlight in sorted(paper["highlights"], key=lambda x: len(x), reverse=True):
+            if highlight in title:
+                title = title.replace(highlight, f"<b>{highlight}</b>")
         messages.append(
             [
                 {"tag": "a", "text": "PDF ", "href": paper["pdf_url"]},
-                {"tag": "text", "text": f'**{paper["title"]}**'},
+                {"tag": "text", "text": f'{paper["title"]}'},
                 {"tag": "text", "text": f" {', '.join(paper['highlights'])}"},
             ]
         )
@@ -173,9 +181,12 @@ def convert_to_feishu_messages(papers: list):
 if __name__ == "__main__":
     # Collect papers
     papers = []
+    paper_ids = set()
     for category in SETTINGS["categories"]:
         print(f"Collecting {category}...")
         for paper in collect_category(category, days=1, timezone=SETTINGS["timezone"]):
+            if paper.entry_id in paper_ids:
+                continue
             paper_dict = {
                 "title": paper.title,
                 "url": paper.entry_id,
@@ -190,6 +201,7 @@ if __name__ == "__main__":
             if highlights:
                 paper_dict["highlights"] = highlights
                 papers.append(paper_dict)
+                paper_ids.add(paper.entry_id)
                 print(
                     f"Collected Highlight Paper: {category} ({len(papers)}) - {paper.local_date} - {paper.title}"
                 )
@@ -198,7 +210,10 @@ if __name__ == "__main__":
     dump_json("daily-arxiv-papers.json", papers)
     print(f"Total collected: {len(papers)}")
     print("Sending to feishu...")
-    messages = convert_to_feishu_messages(papers)
+    if len(papers) > 0:
+        messages = convert_to_feishu_messages(papers)
+    else:
+        messages = [{"tag": "text", "text": "Oops, there are no arXiv papers today 🥰."}]
     date = dt.datetime.now().strftime("%b %d %Y %a")
     res = send_feishu_messages(f"Daily arXiv Highlights - {date}", messages)
     print(res)
